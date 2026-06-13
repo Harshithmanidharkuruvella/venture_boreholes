@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* --- Global Text Splitting for Scroll Reveals --- */
-    if (typeof SplitType !== 'undefined') {
+    if (typeof SplitType !== 'undefined' && window.innerWidth > 768) {
         const splitHeaders = document.querySelectorAll('.sec-heading');
         splitHeaders.forEach(header => {
             const split = new SplitType(header, { types: 'lines, words' });
@@ -122,6 +122,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 );
             }
+        });
+    } else {
+        // Fallback for mobile viewports or if SplitType is undefined
+        const splitHeaders = document.querySelectorAll('.sec-heading');
+        splitHeaders.forEach(header => {
+            gsap.fromTo(header,
+                { y: 30, opacity: 0 },
+                {
+                    scrollTrigger: {
+                        trigger: header,
+                        start: "top 85%",
+                    },
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    ease: "expo.out"
+                }
+            );
         });
     }
 
@@ -246,10 +264,10 @@ document.addEventListener('DOMContentLoaded', () => {
         navShade.classList.toggle('active');
         
         if (navMenu.classList.contains('open')) {
-            lenis.stop(); // Stop smooth scroll
+            if (typeof lenis !== 'undefined' && lenis) lenis.stop(); // Stop smooth scroll
             navbar.classList.add('scrolled');
         } else {
-            lenis.start();
+            if (typeof lenis !== 'undefined' && lenis) lenis.start();
             if (window.scrollY <= 10) navbar.classList.remove('scrolled');
         }
     }
@@ -267,12 +285,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleMenu();
                 }
 
-                // Use lenis to scroll smoothly
-                lenis.scrollTo(targetId, {
-                    offset: -80,
-                    duration: 1.2,
-                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
-                });
+                // Use lenis to scroll smoothly if available, fallback to native smooth scroll
+                if (typeof lenis !== 'undefined' && lenis) {
+                    lenis.scrollTo(targetId, {
+                        offset: -80,
+                        duration: 1.2,
+                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+                    });
+                } else {
+                    const targetEl = document.querySelector(targetId);
+                    if (targetEl) {
+                        const offset = 80;
+                        const bodyRect = document.body.getBoundingClientRect().top;
+                        const elementRect = targetEl.getBoundingClientRect().top;
+                        const elementPosition = elementRect - bodyRect;
+                        const offsetPosition = elementPosition - offset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
             }
             
             navLinks.forEach(l => l.classList.remove('active'));
@@ -292,10 +326,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     toTopBtn.addEventListener('click', () => {
-        lenis.scrollTo(0, {
-            duration: 1.5,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
-        });
+        if (typeof lenis !== 'undefined' && lenis) {
+            lenis.scrollTo(0, {
+                duration: 1.5,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+            });
+        } else {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     });
 
     /* --- Advanced Scroll Velocity Skew --- */
@@ -303,17 +344,19 @@ document.addEventListener('DOMContentLoaded', () => {
         skewSetter = gsap.quickSetter(".why-item, .proj", "skewY", "deg"),
         clamp = gsap.utils.clamp(-5, 5);
 
-    ScrollTrigger.create({
-        onUpdate: (self) => {
-            let skew = clamp(self.getVelocity() / -300);
-            if (Math.abs(skew) > Math.abs(proxy.skew)) {
-                proxy.skew = skew;
-                gsap.to(proxy, { skew: 0, duration: 0.8, ease: "power3", overwrite: true, onUpdate: () => skewSetter(proxy.skew) });
+    if (window.innerWidth > 1024) {
+        ScrollTrigger.create({
+            onUpdate: (self) => {
+                let skew = clamp(self.getVelocity() / -300);
+                if (Math.abs(skew) > Math.abs(proxy.skew)) {
+                    proxy.skew = skew;
+                    gsap.to(proxy, { skew: 0, duration: 0.8, ease: "power3", overwrite: true, onUpdate: () => skewSetter(proxy.skew) });
+                }
             }
-        }
-    });
+        });
 
-    gsap.set(".why-item, .proj", { transformOrigin: "right center", force3D: true });
+        gsap.set(".why-item, .proj", { transformOrigin: "right center", force3D: true });
+    }
 
     /* --- Marquee Animation --- */
     gsap.to(".marquee-inner", {
@@ -490,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Show modal
                     serviceModal.classList.add('open');
                     document.body.classList.add('modal-open');
-                    lenis.stop(); // Stop smooth scroll
+                    if (typeof lenis !== 'undefined' && lenis) lenis.stop(); // Stop smooth scroll
                 }
             });
         });
@@ -499,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const closeModal = () => {
             serviceModal.classList.remove('open');
             document.body.classList.remove('modal-open');
-            lenis.start(); // Resume smooth scroll
+            if (typeof lenis !== 'undefined' && lenis) lenis.start(); // Resume smooth scroll
         };
 
         modalCloseBtn.addEventListener('click', closeModal);
