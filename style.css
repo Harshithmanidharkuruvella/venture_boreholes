@@ -1294,6 +1294,7 @@ html.lenis, html.lenis body {
 
 /* Film Grain Overlay */
 .noise-overlay {
+  display: none !important;
   position: fixed;
   inset: -50%;
   width: 200%;

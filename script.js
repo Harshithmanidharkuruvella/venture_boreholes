@@ -110,11 +110,15 @@ document.addEventListener('DOMContentLoaded', () => {
           }, 1500);
     };
 
-    if (document.readyState === 'complete') {
-        startIntroAnimation();
-    } else {
-        window.addEventListener('load', startIntroAnimation);
-    }
+    // Run intro animation immediately once DOM is parsed
+    startIntroAnimation();
+
+    // Refresh GSAP scroll coordinates once all images load
+    window.addEventListener('load', () => {
+        if (typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+        }
+    });
 
     /* --- Global Text Splitting for Scroll Reveals --- */
     if (typeof SplitType !== 'undefined' && window.innerWidth > 768) {
