@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof SplitType !== 'undefined') {
         heroTitle = new SplitType('.hero h1', { types: 'lines, words' });
         gsap.set('.hero h1', { opacity: 1 }); // Reveal parent wrapper, since split words are hidden
-        if (heroTitle && heroTitle.words) {
+        if (heroTitle && heroTitle.words && heroTitle.words.length > 0) {
             gsap.set(heroTitle.words, { y: 100, opacity: 0 });
         }
     } else {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .to('.hero-media img', { scale: 1, duration: 2, ease: "expo.out" }, "-=0.6");
           
           // 3. Hero Text Reveal (using words if SplitType worked, otherwise fallback)
-          if (heroTitle && heroTitle.words) {
+          if (heroTitle && heroTitle.words && heroTitle.words.length > 0) {
               tl.to(heroTitle.words, {
                   y: 0,
                   opacity: 1,

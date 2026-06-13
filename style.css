@@ -283,7 +283,6 @@ ul { list-style: none; }
 
 /* Prevent FOUC blinking in hero */
 .hero-eyebrow,
-.hero h1,
 .hero-desc,
 .hero-btns {
   opacity: 0;
