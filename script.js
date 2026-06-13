@@ -53,13 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.set('.hero-eyebrow, .hero-desc, .hero-btns', { y: 30, opacity: 0 });
     gsap.set('.hero-media img', { scale: 1.15 });
 
-    window.addEventListener('load', () => {
+    const startIntroAnimation = () => {
         const tl = gsap.timeline();
 
         // 1. Preloader fade out
         tl.to('.preloader-logo', { opacity: 0, duration: 0.5, ease: "power2.inOut" }, "+=0.2")
           .to('.preloader-bar', { width: 0, opacity: 0, duration: 0.4, ease: "power2.inOut" })
-          .to(preloader, { yPercent: -100, duration: 1, ease: "expo.inOut" })
+          .to(preloader, { 
+              yPercent: -100, 
+              duration: 1, 
+              ease: "expo.inOut",
+              onComplete: () => {
+                  preloader.style.display = 'none';
+              }
+          })
           
           // 2. Hero Image Scale
           .to('.hero-media img', { scale: 1, duration: 2, ease: "expo.out" }, "-=0.6");
@@ -101,7 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
                   ScrollTrigger.refresh();
               }
           }, 1500);
-    });
+    };
+
+    if (document.readyState === 'complete') {
+        startIntroAnimation();
+    } else {
+        window.addEventListener('load', startIntroAnimation);
+    }
 
     /* --- Global Text Splitting for Scroll Reveals --- */
     if (typeof SplitType !== 'undefined' && window.innerWidth > 768) {
