@@ -511,4 +511,113 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /* --- Blogs Details Database & Modal Logic --- */
+    const blogArticles = {
+        "0": {
+            tag: "Hydrogeology",
+            date: "June 12, 2026",
+            title: "The Science of Finding Water: How Geophysical Surveys Work",
+            img: "img/about-aerial.png",
+            content: `
+                <p>Locating a high-yield water resource is not a matter of guesswork. While traditional dowsing has been used historically, modern groundwater exploration relies on sophisticated geophysical surveys to map the subsurface and identify water-bearing rock layers (aquifers).</p>
+                <h3>What is a Geophysical Survey?</h3>
+                <p>A geophysical survey is a non-invasive scientific method that measures the physical properties of the earth beneath our feet. For borehole drilling, the primary method used is the <strong>Electrical Resistivity Test</strong>. Because water is an excellent conductor of electricity, saturated geological formations have much lower electrical resistance compared to dry, solid rock. By injecting controlled electrical currents into the ground via steel electrodes and measuring the potential difference, our geophysicists can map resistivity changes at various depths.</p>
+                <blockquote>"By using advanced 2D resistivity imaging, we can construct a vertical cross-section of the ground, pinpointing aquifers with up to 95% accuracy before a single meter is drilled."</blockquote>
+                <h3>How It Works: Step-by-Step</h3>
+                <p>1. <strong>Site Analysis:</strong> Our team reviews local geological maps, hydrogeological reports, and satellite imagery to understand the regional structures.</p>
+                <p>2. <strong>Field Profiling:</strong> We lay out a survey line and insert metal electrodes into the ground. These are connected to a digital resistivity meter.</p>
+                <p>3. <strong>Data Logging:</strong> The resistivity meter sends electrical current profiles into the ground at increments, profiling depths of up to 200 meters or more.</p>
+                <p>4. <strong>3D Inversion & Modeling:</strong> The gathered data is processed using specialized software to generate models showing clay layers, sand formations, dry bedrock, and water-saturated fractures.</p>
+                <h3>Maximizing Borehole Success</h3>
+                <p>Conducting a proper survey dramatically reduces the risk of drilling a dry well. It ensures that the borehole is positioned in the spot with the highest yield potential and determines the exact depth required to secure a reliable, long-term water supply.</p>
+            `
+        },
+        "1": {
+            tag: "Engineering",
+            date: "May 28, 2026",
+            title: "Understanding Borehole Casing: Why Quality Materials Matter",
+            img: "img/service-accessories.png",
+            content: `
+                <p>Once a borehole has been successfully drilled to its target depth, the engineering work is only half complete. To transform a raw, mud-filled hole into a permanent, clean water source, it must be properly cased and completed. Skimping on casing quality is one of the most common causes of premature borehole failure in Zimbabwe.</p>
+                <h3>What is Borehole Casing?</h3>
+                <p>Casing is a lining of high-strength PVC or steel pipe that is inserted into the drilled hole. Its primary purposes are to prevent the surrounding soil and loose rock from collapsing into the well, and to isolate the clean aquifer from shallow, contaminated groundwater.</p>
+                <h3>Key Components of a Quality Well Completion</h3>
+                <p><strong>1. Class 9 or Class 12 PVC Casing:</strong> We use thick-walled, food-grade PVC casings designed specifically for water wells. Standard thin PVC pipes will buckle under the immense pressure of shifting soil or during pump installation.</p>
+                <p><strong>2. Gravel Packing:</strong> The space between the outer drilled wall and the inner PVC casing is filled with clean, graded silica gravel (pea gravel). This acts as a natural pre-filter, keeping sand and fine sediment out of your well while allowing water to flow smoothly inside.</p>
+                <p><strong>3. Sanitary Seals (Grouting):</strong> The top 6 to 10 meters of the borehole are sealed with concrete grout. This sanitary seal prevents dirty surface water, organic matter, and contaminants from running down the outside of the casing and polluting the deep groundwater reservoir.</p>
+                <blockquote>"A borehole built with sub-standard casing might function for a few months, but shifting earth or root systems will eventually crush it, leading to pump damage and costly re-drilling."</blockquote>
+                <h3>Protecting Your Investment</h3>
+                <p>Investing in high-quality materials and strict engineering standards during the well completion stage ensures your borehole will remain structural and provide crystal-clear water for decades.</p>
+            `
+        },
+        "2": {
+            tag: "Technology",
+            date: "April 15, 2026",
+            title: "Solar-Powered Water Systems: The Future of Agriculture",
+            img: "img/service-it.png",
+            content: `
+                <p>For decades, agricultural operations and off-grid communities in Zimbabwe relied on expensive diesel generators to run their water pumps. Today, the rapid advancement and falling costs of solar energy have made solar-powered borehole systems the gold standard for reliable, eco-friendly, and cost-effective water supply.</p>
+                <h3>The Power of Solar Telemetry</h3>
+                <p>Modern solar water systems are far more than just a pump connected to a solar panel. Advanced solar controllers manage power variations dynamically. When the sun is weak in the morning or during cloud cover, the controller adjusts the pump's frequency to keep drawing water without overloading the system. This maximizes daily water yields without relying on storage batteries, which are expensive and prone to theft.</p>
+                <h3>Why Solar is Transforming Agriculture</h3>
+                <p><strong>Zero Fuel Costs:</strong> Unlike diesel generators that require continuous fuel purchases and expensive maintenance, solar systems harness free sunlight. The initial setup pays for itself within the first 12 to 18 months of operation.</p>
+                <p><strong>Automated & Smart Control:</strong> Modern solar systems can be integrated with smart pressure switches and telemetry panels. The pump will automatically shut off when your reservoirs are full or if the water level in the borehole drops below a safe limit, protecting the pump from running dry.</p>
+                <blockquote>"Solar-powered drip irrigation allows smallholders and commercial farms to cultivate high-value crops year-round, securing food supplies and generating reliable income regardless of rainfall patterns."</blockquote>
+                <h3>Long-Term Sustainability</h3>
+                <p>By transitioning to solar-powered systems, farm operations and residential estates significantly reduce their carbon footprint while gaining absolute independence from electrical grid instability and rising fuel costs.</p>
+            `
+        }
+    };
+
+    const blogLinks = document.querySelectorAll('.blog-link');
+    const blogModal = document.getElementById('blogModal');
+    const blogModalImg = document.getElementById('blogModalImg');
+    const blogModalTag = document.getElementById('blogModalTag');
+    const blogModalDate = document.getElementById('blogModalDate');
+    const blogModalTitle = document.getElementById('blogModalTitle');
+    const blogModalText = document.getElementById('blogModalText');
+    const blogCloseBtn = document.getElementById('blogCloseBtn');
+
+    if (blogModal && blogLinks.length) {
+        blogLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const index = link.getAttribute('data-index');
+                const article = blogArticles[index];
+
+                if (article) {
+                    blogModalImg.setAttribute('src', article.img);
+                    blogModalImg.setAttribute('alt', article.title);
+                    blogModalTag.innerText = article.tag;
+                    blogModalDate.innerText = article.date;
+                    blogModalTitle.innerText = article.title;
+                    blogModalText.innerHTML = article.content;
+
+                    blogModal.classList.add('open');
+                    document.body.classList.add('modal-open');
+                    if (typeof lenis !== 'undefined' && lenis) lenis.stop(); // Stop smooth scroll
+                }
+            });
+        });
+
+        const closeBlogModal = () => {
+            blogModal.classList.remove('open');
+            document.body.classList.remove('modal-open');
+            if (typeof lenis !== 'undefined' && lenis) lenis.start(); // Resume smooth scroll
+        };
+
+        blogCloseBtn.addEventListener('click', closeBlogModal);
+        blogModal.addEventListener('click', (e) => {
+            if (e.target === blogModal) {
+                closeBlogModal();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && blogModal.classList.contains('open')) {
+                closeBlogModal();
+            }
+        });
+    }
+
 });
