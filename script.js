@@ -41,12 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let heroTitle;
     if (typeof SplitType !== 'undefined') {
         heroTitle = new SplitType('.hero h1', { types: 'lines, words' });
+        gsap.set('.hero h1', { opacity: 1 }); // Reveal parent wrapper, since split words are hidden
         if (heroTitle && heroTitle.words) {
             gsap.set(heroTitle.words, { y: 100, opacity: 0 });
         }
     } else {
-        // Fallback if SplitType doesn't load: make sure heading is visible
-        gsap.set('.hero h1', { opacity: 1 });
+        // Fallback if SplitType doesn't load: keep it shifted and transparent, timeline will animate it
+        gsap.set('.hero h1', { y: 30, opacity: 0 });
     }
     
     gsap.set('.hero-eyebrow, .hero-desc, .hero-btns', { y: 30, opacity: 0 });
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
               }, "-=1.5");
           } else {
               tl.to('.hero h1', {
+                  y: 0,
                   opacity: 1,
                   duration: 1.2,
                   ease: "expo.out"
@@ -380,26 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* --- Custom Cursor --- */
-    const cursor = document.querySelector('.cursor');
-    if (cursor) {
-        // Move cursor
-        window.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, {
-                x: e.clientX,
-                y: e.clientY,
-                duration: 0.1,
-                ease: "power2.out"
-            });
-        });
 
-        // Hover effect on links and buttons
-        const interactables = document.querySelectorAll('a, button, .btn, .svc-row');
-        interactables.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
-        });
-    }
 
     /* --- Services Details Database & Modal Logic --- */
     const serviceDetails = {
@@ -446,56 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
             whatsappText: "I want to get a quotation for IT Projects"
         }
     };
-
     const svcRows = document.querySelectorAll('.svc-row');
-    const svcModal = document.querySelector('.svc-modal');
-    const svcSlider = document.querySelector('.svc-slider');
-    const svcCursorLabel = document.querySelector('.svc-cursor-label');
-
-    // Hover effect for desktop
-    if (svcRows.length && svcModal) {
-        gsap.set([svcModal, svcCursorLabel], { xPercent: -50, yPercent: -50, scale: 0 });
-
-        const xMoveModal = gsap.quickTo(svcModal, "left", {duration: 0.8, ease: "power3"});
-        const yMoveModal = gsap.quickTo(svcModal, "top", {duration: 0.8, ease: "power3"});
-        
-        const xMoveCursor = gsap.quickTo(svcCursorLabel, "left", {duration: 0.5, ease: "power3"});
-        const yMoveCursor = gsap.quickTo(svcCursorLabel, "top", {duration: 0.5, ease: "power3"});
-
-        window.addEventListener('mousemove', (e) => {
-            const { clientX, clientY } = e;
-            xMoveModal(clientX);
-            yMoveModal(clientY);
-            xMoveCursor(clientX);
-            yMoveCursor(clientY);
-        });
-
-        svcRows.forEach(row => {
-            row.addEventListener('mouseenter', () => {
-                if (window.innerWidth > 1024) {
-                    const index = row.getAttribute('data-index');
-                    svcSlider.style.top = `-${index * 100}%`;
-                    gsap.to([svcModal, svcCursorLabel], {
-                        scale: 1,
-                        duration: 0.4,
-                        ease: "back.out(1.5)"
-                    });
-                    if(cursor) gsap.to(cursor, {opacity: 0, duration: 0.2});
-                }
-            });
-
-            row.addEventListener('mouseleave', () => {
-                if (window.innerWidth > 1024) {
-                    gsap.to([svcModal, svcCursorLabel], {
-                        scale: 0,
-                        duration: 0.4,
-                        ease: "power3.inOut"
-                    });
-                    if(cursor) gsap.to(cursor, {opacity: 1, duration: 0.2});
-                }
-            });
-        });
-    }
 
     // Modal click handling
     const serviceModal = document.getElementById('serviceModal');
