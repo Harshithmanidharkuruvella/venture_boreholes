@@ -39,75 +39,88 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Split text for hero safely
     let heroTitle;
-    if (typeof SplitType !== 'undefined') {
-        heroTitle = new SplitType('.hero h1', { types: 'lines, words' });
-        gsap.set('.hero h1', { opacity: 1 }); // Reveal parent wrapper, since split words are hidden
-        if (heroTitle && heroTitle.words && heroTitle.words.length > 0) {
-            gsap.set(heroTitle.words, { y: 100, opacity: 0 });
+    const heroH1 = document.querySelector('.hero h1');
+    if (heroH1) {
+        if (typeof SplitType !== 'undefined') {
+            heroTitle = new SplitType('.hero h1', { types: 'lines, words' });
+            gsap.set('.hero h1', { opacity: 1 }); // Reveal parent wrapper, since split words are hidden
+            if (heroTitle && heroTitle.words && heroTitle.words.length > 0) {
+                gsap.set(heroTitle.words, { y: 100, opacity: 0 });
+            }
+        } else {
+            // Fallback if SplitType doesn't load: keep it shifted and transparent, timeline will animate it
+            gsap.set('.hero h1', { y: 30, opacity: 0 });
         }
-    } else {
-        // Fallback if SplitType doesn't load: keep it shifted and transparent, timeline will animate it
-        gsap.set('.hero h1', { y: 30, opacity: 0 });
     }
     
-    gsap.set('.hero-eyebrow, .hero-desc, .hero-btns', { y: 30, opacity: 0 });
-    gsap.set('.hero-media img', { scale: 1.15 });
+    if (document.querySelector('.hero-eyebrow, .hero-desc, .hero-btns')) {
+        gsap.set('.hero-eyebrow, .hero-desc, .hero-btns', { y: 30, opacity: 0 });
+    }
+    if (document.querySelector('.hero-media img')) {
+        gsap.set('.hero-media img', { scale: 1.15 });
+    }
 
     const startIntroAnimation = () => {
         const tl = gsap.timeline();
 
-        // 1. Preloader fade out
-        tl.to('.preloader-logo', { opacity: 0, duration: 0.5, ease: "power2.inOut" }, "+=0.2")
-          .to('.preloader-bar', { width: 0, opacity: 0, duration: 0.4, ease: "power2.inOut" })
-          .to(preloader, { 
-              yPercent: -100, 
-              duration: 1, 
-              ease: "expo.inOut",
-              onComplete: () => {
-                  preloader.style.display = 'none';
-              }
-          })
-          
-          // 2. Hero Image Scale
-          .to('.hero-media img', { scale: 1, duration: 2, ease: "expo.out" }, "-=0.6");
-          
-          // 3. Hero Text Reveal (using words if SplitType worked, otherwise fallback)
-          if (heroTitle && heroTitle.words && heroTitle.words.length > 0) {
-              tl.to(heroTitle.words, {
-                  y: 0,
-                  opacity: 1,
-                  duration: 1.2,
-                  stagger: 0.04,
-                  ease: "expo.out"
-              }, "-=1.5");
-          } else {
-              tl.to('.hero h1', {
-                  y: 0,
-                  opacity: 1,
-                  duration: 1.2,
-                  ease: "expo.out"
-              }, "-=1.5");
-          }
-          
-          tl.to(['.hero-eyebrow', '.hero-desc', '.hero-btns'], {
-              y: 0,
-              opacity: 1,
-              duration: 1,
-              stagger: 0.1,
-              ease: "expo.out",
-              onComplete: () => {
-                  if (typeof ScrollTrigger !== 'undefined') {
-                      ScrollTrigger.refresh();
+        if (preloader) {
+            // 1. Preloader fade out
+            tl.to('.preloader-logo', { opacity: 0, duration: 0.5, ease: "power2.inOut" }, "+=0.2")
+              .to('.preloader-bar', { width: 0, opacity: 0, duration: 0.4, ease: "power2.inOut" })
+              .to(preloader, { 
+                  yPercent: -100, 
+                  duration: 1, 
+                  ease: "expo.inOut",
+                  onComplete: () => {
+                      preloader.style.display = 'none';
                   }
-              }
-          }, "-=1.2");
+              });
+        }
           
-          // Force layout refresh for mobile devices
-          setTimeout(() => {
-              if (typeof ScrollTrigger !== 'undefined') {
-                  ScrollTrigger.refresh();
-              }
-          }, 1500);
+        // 2. Hero Image Scale
+        if (document.querySelector('.hero-media img')) {
+            tl.to('.hero-media img', { scale: 1, duration: 2, ease: "expo.out" }, preloader ? "-=0.6" : "<");
+        }
+          
+        // 3. Hero Text Reveal (using words if SplitType worked, otherwise fallback)
+        if (heroTitle && heroTitle.words && heroTitle.words.length > 0) {
+            tl.to(heroTitle.words, {
+                y: 0,
+                opacity: 1,
+                duration: 1.2,
+                stagger: 0.04,
+                ease: "expo.out"
+            }, preloader ? "-=1.5" : "-=1.8");
+        } else if (document.querySelector('.hero h1')) {
+            tl.to('.hero h1', {
+                y: 0,
+                opacity: 1,
+                duration: 1.2,
+                ease: "expo.out"
+            }, preloader ? "-=1.5" : "-=1.8");
+        }
+        
+        if (document.querySelector('.hero-eyebrow, .hero-desc, .hero-btns')) {
+            tl.to(['.hero-eyebrow', '.hero-desc', '.hero-btns'], {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                stagger: 0.1,
+                ease: "expo.out",
+                onComplete: () => {
+                    if (typeof ScrollTrigger !== 'undefined') {
+                        ScrollTrigger.refresh();
+                    }
+                }
+            }, preloader ? "-=1.2" : "-=1.5");
+        }
+          
+        // Force layout refresh for mobile devices
+        setTimeout(() => {
+            if (typeof ScrollTrigger !== 'undefined') {
+                ScrollTrigger.refresh();
+            }
+        }, 1500);
     };
 
     // Run intro animation immediately once DOM is parsed
@@ -359,11 +372,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* --- Advanced Scroll Velocity Skew --- */
-    let proxy = { skew: 0 },
-        skewSetter = gsap.quickSetter(".why-item, .proj", "skewY", "deg"),
-        clamp = gsap.utils.clamp(-5, 5);
+    if (document.querySelector(".why-item, .proj") && window.innerWidth > 1024) {
+        let proxy = { skew: 0 },
+            skewSetter = gsap.quickSetter(".why-item, .proj", "skewY", "deg"),
+            clamp = gsap.utils.clamp(-5, 5);
 
-    if (window.innerWidth > 1024) {
         ScrollTrigger.create({
             onUpdate: (self) => {
                 let skew = clamp(self.getVelocity() / -300);
@@ -618,6 +631,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeBlogModal();
             }
         });
+    }
+
+    // URL Deep-linking Support for Blogs Modal
+    const urlParams = new URLSearchParams(window.location.search);
+    const readParam = urlParams.get('read');
+    if (readParam !== null && blogModal) {
+        const article = blogArticles[readParam];
+        if (article) {
+            blogModalImg.setAttribute('src', article.img);
+            blogModalImg.setAttribute('alt', article.title);
+            blogModalTag.innerText = article.tag;
+            blogModalDate.innerText = article.date;
+            blogModalTitle.innerText = article.title;
+            blogModalText.innerHTML = article.content;
+
+            setTimeout(() => {
+                blogModal.classList.add('open');
+                document.body.classList.add('modal-open');
+                if (typeof lenis !== 'undefined' && lenis) lenis.stop(); // Stop smooth scroll
+            }, 300);
+        }
     }
 
 });
